@@ -1,0 +1,102 @@
+name: Build Nginx Based on LDD Version
+
+on:
+  workflow_dispatch:
+    inputs:
+      ldd_version:
+        description: "Specify the ldd version (e.g., 2.12, 2.17, 2.28, 2.34)"
+        required: true
+        default: "2.28"
+      nginx_version:
+        description: "Specify the nginx version"
+        required: true
+        default: "1.27.3"
+      prefix:
+        required: true
+
+jobs:
+  build-nginx:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set system version based on ldd version
+      id: set-system
+      run: |
+        case "${{ github.event.inputs.ldd_version }}" in
+          "2.12")
+            echo "SYSTEM_VERSION=6" >> $GITHUB_ENV
+            ;;
+          "2.17")
+            echo "SYSTEM_VERSION=7" >> $GITHUB_ENV
+            ;;
+          "2.28")
+            echo "SYSTEM_VERSION=8" >> $GITHUB_ENV
+            ;;
+          "2.34")
+            echo "SYSTEM_VERSION=9" >> $GITHUB_ENV
+            ;;
+          *)
+            echo "Unsupported ldd version: ${{ github.event.inputs.ldd_version }}"
+            exit 1
+            ;;
+        esac
+
+    - name: Pull Docker image for chosen system
+      run: |
+        docker pull almalinux:${{ env.SYSTEM_VERSION }}
+
+    - name: Run Docker container and build Nginx
+      run: |
+        docker run --rm -v ${{ github.workspace }}:/opt/nginx almalinux:${{ env.SYSTEM_VERSION }} /bin/bash -c "
+          dnf -y update &&
+          dnf -y groupinstall 'Development Tools' &&
+          dnf -y install nano wget mercurial psmisc cmake go automake gcc gcc-c++ kernel-devel git zlib zlib-devel openssl openssl-devel pcre pcre-devel perl-IPC-Cmd make tar autoconf brotli-devel &&
+          dnf clean all &&
+
+          cd /opt/nginx &&
+          git clone --depth 1 --recurse-submodules https://github.com/quictls/openssl.git openssl &&
+
+          cd /opt/nginx &&
+          git clone --depth 1 --recurse-submodules https://github.com/jemalloc/jemalloc.git jemalloc &&
+          cd jemalloc && ./autogen.sh && make -j$(nproc) && make install && make clean &&
+          ln -s /usr/local/lib/libjemalloc.so.2 /usr/lib/libjemalloc.so.2 &&
+          ln -s /usr/local/lib/libjemalloc.so.2 /usr/lib64/libjemalloc.so.2 &&
+
+          cd /opt/nginx &&
+          git clone --depth 1 --recurse-submodules https://github.com/google/ngx_brotli.git ngx_brotli &&
+          cd ngx_brotli && git submodule update --init &&
+
+          cd /opt/nginx &&
+          git clone --depth 1 --recurse-submodules https://github.com/facebook/zstd.git zstd &&
+          cd zstd && make -j$(nproc) && make install && make clean &&
+          cd /opt/nginx &&
+          git clone --depth 1 --recurse-submodules https://github.com/tokers/zstd-nginx-module.git ngx_zstd &&
+          
+          cd /opt/nginx &&
+          git clone --depth 1 --recurse-submodules https://github.com/PCRE2Project/pcre2.git pcre2 &&
+          cd pcre2 && ./autogen.sh && ./configure && make -j$(nproc) && make install && make clean &&
+
+          cd /opt/nginx &&
+          wget https://nginx.org/download/nginx-${{ github.event.inputs.nginx_version }}.tar.gz &&
+          tar -zxvf nginx-${{ github.event.inputs.nginx_version }}.tar.gz && cd nginx-${{ github.event.inputs.nginx_version }} &&
+          ./configure --prefix=${{ github.event.inputs.prefix }} --with-threads --with-file-aio --with-http_v2_module --with-http_v3_module --with-http_ssl_module \
+                      --with-http_sub_module --with-http_slice_module --with-http_realip_module --with-http_degradation_module \
+                      --with-http_stub_status_module --with-pcre-jit --with-pcre=../pcre2 --with-stream --with-stream_ssl_module \
+                      --with-stream_ssl_preread_module --with-openssl=../openssl --add-module=../ngx_zstd --add-module=../ngx_brotli \
+                      --with-ld-opt='-ljemalloc -Wl,-z,relro,-z,now -flto' \
+                      --with-openssl-opt='no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128 enable-tls1_3 enable-quic' \
+                      --with-cc-opt='-O3 -march=haswell -mtune=haswell -mavx2 -funroll-loops -fprefetch-loop-arrays \
+                                     -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIC -pipe -flto' &&
+          make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && mv objs/nginx /opt/nginx/
+        "
+
+    - name: Upload Nginx binary and build information to repository
+      uses: actions/upload-artifact@v3
+      with:
+        name: nginx_artifacts
+        path: |
+          ${{ github.workspace }}/nginx
+          ${{ github.workspace }}/nginx_build_info.txt
