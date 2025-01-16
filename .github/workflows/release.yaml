@@ -76,13 +76,6 @@ jobs:
           git clone --depth 1 https://github.com/cloudflare/zlib.git &&
           cd zlib && ./configure &&
 
-          # cd /opt/nginx &&
-          # wget https://github.com/Refinitiv/nginx-sticky-module-ng/archive/refs/tags/${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
-          # tar xf ${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
-          # mv nginx-sticky-module-ng-${{ github.event.inputs.nginx_sticky_version }} nginx-sticky-module &&
-          # sed -i 's@ngx_http_parse_multi_header_lines.*@ngx_http_parse_multi_header_lines(r, r->headers_in.cookie, \&iphp->sticky_conf->cookie_name, \&route) != NULL){@g' nginx-sticky-module/ngx_http_sticky_module.c &&
-          # sed -i '12a #include <openssl/sha.h>' nginx-sticky-module/ngx_http_sticky_misc.c &&
-          # sed -i '12a #include <openssl/md5.h>' nginx-sticky-module/ngx_http_sticky_misc.c &&
 
           cd /opt/nginx &&
           git clone --depth 1 --recurse-submodules https://github.com/google/ngx_brotli.git ngx_brotli &&
@@ -101,14 +94,6 @@ jobs:
           cd /opt/nginx &&
           wget https://nginx.org/download/nginx-${{ github.event.inputs.nginx_version }}.tar.gz &&
           tar -zxvf nginx-${{ github.event.inputs.nginx_version }}.tar.gz && cd nginx-${{ github.event.inputs.nginx_version }} &&
-          # sed -i "s|nginx/|NGINX-QuicTLS/|g" src/core/nginx.h &&
-          # sed -i "s|Server: nginx|Server: NGINX-QuicTLS|g" src/http/ngx_http_header_filter_module.c &&
-          # sed -i "s|<hr><center>nginx</center>|<hr><center>NGINX-QuicTLS</center>|g" src/http/ngx_http_special_response.c &&
-          
-          # git clone --depth 1 --recurse-submodules https://github.com/zhouchangxun/ngx_healthcheck_module.git  ngx_healthcheck_module &&
-          # wget -O nginx_dynamic_tls_records.patch https://raw.githubusercontent.com/nginx-modules/ngx_http_tls_dyn_size/refs/heads/master/nginx__dynamic_tls_records_1.27.2%2B.patch &&
-          # patch -p1 < ./ngx_healthcheck_module/nginx_healthcheck_for_nginx_1.19+.patch &&
-          # patch -p1 < ./nginx_dynamic_tls_records.patch &&
 
           ./configure --prefix=${{ github.event.inputs.prefix }} --with-threads --with-file-aio --with-http_v2_module --with-http_v3_module --with-http_ssl_module \
                       --with-http_sub_module --with-http_slice_module --with-http_realip_module --with-http_degradation_module \
