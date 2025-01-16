@@ -76,13 +76,13 @@ jobs:
           git clone --depth 1 https://github.com/cloudflare/zlib.git &&
           cd zlib && ./configure &&
 
-          cd /opt/nginx &&
-          wget https://github.com/Refinitiv/nginx-sticky-module-ng/archive/refs/tags/${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
-          tar xf ${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
-          mv nginx-sticky-module-ng-${{ github.event.inputs.nginx_sticky_version }} nginx-sticky-module &&
-          sed -i 's@ngx_http_parse_multi_header_lines.*@ngx_http_parse_multi_header_lines(r, r->headers_in.cookie, \&iphp->sticky_conf->cookie_name, \&route) != NULL){@g' nginx-sticky-module/ngx_http_sticky_module.c &&
-          sed -i '12a #include <openssl/sha.h>' nginx-sticky-module/ngx_http_sticky_misc.c &&
-          sed -i '12a #include <openssl/md5.h>' nginx-sticky-module/ngx_http_sticky_misc.c &&
+          # cd /opt/nginx &&
+          # wget https://github.com/Refinitiv/nginx-sticky-module-ng/archive/refs/tags/${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
+          # tar xf ${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
+          # mv nginx-sticky-module-ng-${{ github.event.inputs.nginx_sticky_version }} nginx-sticky-module &&
+          # sed -i 's@ngx_http_parse_multi_header_lines.*@ngx_http_parse_multi_header_lines(r, r->headers_in.cookie, \&iphp->sticky_conf->cookie_name, \&route) != NULL){@g' nginx-sticky-module/ngx_http_sticky_module.c &&
+          # sed -i '12a #include <openssl/sha.h>' nginx-sticky-module/ngx_http_sticky_misc.c &&
+          # sed -i '12a #include <openssl/md5.h>' nginx-sticky-module/ngx_http_sticky_misc.c &&
 
           cd /opt/nginx &&
           git clone --depth 1 --recurse-submodules https://github.com/google/ngx_brotli.git ngx_brotli &&
