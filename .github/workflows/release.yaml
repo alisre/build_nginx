@@ -75,12 +75,12 @@ jobs:
           dnf -y install nano wget mercurial psmisc cmake go automake gcc gcc-c++ kernel-devel git zlib zlib-devel openssl openssl-devel pcre pcre-devel perl-IPC-Cmd make tar autoconf brotli-devel &&
           dnf clean all &&
 
-          cd /opt/nginx &&
-          git clone --recursive --branch "${{ github.event.inputs.openssl_version }}" https://github.com/quictls/openssl.git openssl &&
-          git clone --recursive --branch "${{ github.event.inputs.headers_more_version }}" https://github.com/openresty/headers-more-nginx-module headers-more-nginx-module &&
-          git clone --recursive --branch "${{ github.event.inputs.geoip2_version }}" https://github.com/leev/ngx_http_geoip2_module ngx_http_geoip2_module &&
-          git clone --depth 1 https://github.com/cloudflare/zlib.git &&
-          cd zlib && ./configure &&
+          # cd /opt/nginx &&
+          # git clone --recursive --branch "${{ github.event.inputs.openssl_version }}" https://github.com/quictls/openssl.git openssl &&
+          # git clone --recursive --branch "${{ github.event.inputs.headers_more_version }}" https://github.com/openresty/headers-more-nginx-module headers-more-nginx-module &&
+          # git clone --recursive --branch "${{ github.event.inputs.geoip2_version }}" https://github.com/leev/ngx_http_geoip2_module ngx_http_geoip2_module &&
+          # git clone --depth 1 https://github.com/cloudflare/zlib.git &&
+          # cd zlib && ./configure &&
 
           # cd /opt/nginx &&
           # wget https://github.com/Refinitiv/nginx-sticky-module-ng/archive/refs/tags/${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
@@ -94,8 +94,8 @@ jobs:
           git clone --depth 1 --recurse-submodules https://github.com/google/ngx_brotli.git ngx_brotli &&
           cd ngx_brotli && git submodule update --init &&
 
-          cd  /opt/nginx &&
-          wget https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE_VER}/pcre2-${PCRE_VER}.tar.gz
+          # cd  /opt/nginx &&
+          # wget https://github.com/PCRE2Project/pcre2/releases/download/pcre2-${PCRE_VER}/pcre2-${PCRE_VER}.tar.gz
 
           cd /opt/nginx &&
           git clone --depth 1 --recurse-submodules https://github.com/facebook/zstd.git zstd &&
@@ -103,9 +103,9 @@ jobs:
           cd /opt/nginx &&
           git clone --depth 1 --recurse-submodules https://github.com/tokers/zstd-nginx-module.git ngx_zstd &&
           
-          cd /opt/nginx &&
-          git clone --depth 1 --recurse-submodules https://github.com/PCRE2Project/pcre2.git pcre2 &&
-          cd pcre2 && ./autogen.sh && ./configure && make -j$(nproc) && make install && make clean &&
+          # cd /opt/nginx &&
+          # git clone --depth 1 --recurse-submodules https://github.com/PCRE2Project/pcre2.git pcre2 &&
+          # cd pcre2 && ./autogen.sh && ./configure && make -j$(nproc) && make install && make clean &&
 
           cd /opt/nginx &&
           wget https://nginx.org/download/nginx-${{ github.event.inputs.nginx_version }}.tar.gz &&
