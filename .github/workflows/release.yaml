@@ -101,12 +101,8 @@ jobs:
           cd /opt/nginx &&
           wget https://nginx.org/download/nginx-${{ github.event.inputs.nginx_version }}.tar.gz &&
           tar -zxvf nginx-${{ github.event.inputs.nginx_version }}.tar.gz && cd nginx-${{ github.event.inputs.nginx_version }} &&
-          git clone --depth 1 --recurse-submodules https://github.com/zhouchangxun/ngx_healthcheck_module.git  ngx_healthcheck_module &&
           wget -O nginx_dynamic_tls_records.patch https://raw.githubusercontent.com/nginx-modules/ngx_http_tls_dyn_size/refs/heads/master/nginx__dynamic_tls_records_1.27.2%2B.patch &&
-          patch -p1 < ./ngx_healthcheck_module/nginx_healthcheck_for_nginx_1.19+.patch &&
           patch -p1 < ./nginx_dynamic_tls_records.patch &&
-
-          echo "finish clone code" &&
 
           ./configure \
                --prefix=${{ github.event.inputs.prefix }} \
@@ -130,7 +126,6 @@ jobs:
                --add-module=../nginx-sticky-module \
                --add-module=../ngx_zstd \
                --add-module=../ngx_brotli \
-               --add-module=./ngx_healthcheck_module \
                --add-module=../ngx_http_geoip2_module \
                --add-module=../headers-more-nginx-module \
                --with-openssl-opt='no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128 enable-tls1_3 enable-quic' \
