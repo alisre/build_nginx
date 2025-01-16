@@ -10,7 +10,7 @@ on:
       nginx_version:
         description: "Specify the nginx version"
         required: true
-        default: "1.27.1"
+        default: "1.27.3"
       openssl_version:
         required: true
         default: "openssl-3.3.0+quic"
@@ -106,6 +106,8 @@ jobs:
           patch -p1 < ./ngx_healthcheck_module/nginx_healthcheck_for_nginx_1.19+.patch &&
           patch -p1 < ./nginx_dynamic_tls_records.patch &&
 
+          echo "finish clone code" &&
+
           ./configure \
                --prefix=${{ github.event.inputs.prefix }} \
                --conf-path=${{ github.event.inputs.prefix }}/conf/nginx.conf \
@@ -134,7 +136,8 @@ jobs:
                --with-openssl-opt='no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128 enable-tls1_3 enable-quic' \
                --with-cc-opt='-O3 -march=haswell -mtune=haswell -mavx2 -funroll-loops -fprefetch-loop-arrays \
                                       -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIC -pipe -flto' &&
-           make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && strip -s objs/nginx && mv objs/nginx /opt/nginx/
+           make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && strip -s objs/nginx && mv objs/nginx /opt/nginx/ &&
+           echo "finish build nginx"
         "
 
     - name: Upload Nginx binary and build information to repository
