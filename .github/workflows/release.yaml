@@ -94,9 +94,6 @@ jobs:
           cd /opt/nginx &&
           wget https://nginx.org/download/nginx-${{ github.event.inputs.nginx_version }}.tar.gz &&
           tar -zxvf nginx-${{ github.event.inputs.nginx_version }}.tar.gz && cd nginx-${{ github.event.inputs.nginx_version }} &&
-          sed -i "s|nginx/|NGINX-QuicTLS/|g" src/core/nginx.h &&
-          sed -i "s|Server: nginx|Server: NGINX-QuicTLS|g" src/http/ngx_http_header_filter_module.c &&
-          sed -i "s|<hr><center>nginx</center>|<hr><center>NGINX-QuicTLS</center>|g" src/http/ngx_http_special_response.c &&
 
           ./configure --prefix=${{ github.event.inputs.prefix }} --with-threads --with-file-aio --with-http_v2_module --with-http_v3_module --with-http_ssl_module \
                       --with-http_sub_module --with-http_slice_module --with-http_realip_module --with-http_degradation_module \
