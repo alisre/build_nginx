@@ -1,6 +1,9 @@
 name: Build Nginx Based on LDD Version
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       ldd_version:
