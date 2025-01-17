@@ -107,6 +107,9 @@ jobs:
           cd /opt/nginx &&
           wget https://nginx.org/download/nginx-${{ github.event.inputs.nginx_version }}.tar.gz &&
           tar -zxvf nginx-${{ github.event.inputs.nginx_version }}.tar.gz && cd nginx-${{ github.event.inputs.nginx_version }} &&
+          wget https://raw.githubusercontent.com/nginx-modules/ngx_http_tls_dyn_size/refs/heads/master/nginx__dynamic_tls_records_1.27.2%2B.patch -O dynamic_tls_records.patch &&
+          patch -p1 < ./nginx_dynamic_tls_records.patch &&
+
           ./configure --prefix=${{ github.event.inputs.prefix }} --with-threads --with-file-aio --with-http_v2_module --with-http_v3_module --with-http_ssl_module \
                       --with-http_sub_module --with-http_slice_module --with-http_realip_module --with-http_degradation_module \
                       --with-http_stub_status_module --with-pcre-jit --with-pcre=../pcre2 --with-stream --with-stream_ssl_module \
@@ -115,7 +118,8 @@ jobs:
                       --with-openssl-opt='no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128 enable-tls1_3 enable-quic' \
                       --with-cc-opt='-O3 -march=haswell -mtune=haswell -mavx2 -funroll-loops -fprefetch-loop-arrays \
                                      -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIC -pipe -flto' &&
-          make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && mv objs/nginx /opt/nginx/
+          make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && make install && cd ${{ github.event.inputs.prefix }} && cd ../ &&  strip -s nginx/sbin/nginx && zip -r nginx.zip nginx && mv nginx.zip /opt/nginx/ &&
+          echo "finish build nginx
         "
 
     - name: Upload Nginx binary and build information to repository
@@ -123,5 +127,5 @@ jobs:
       with:
         name: nginx_artifacts
         path: |
-          ${{ github.workspace }}/nginx
+          ${{ github.workspace }}/nginx.zip
           ${{ github.workspace }}/nginx_build_info.txt
