@@ -73,8 +73,6 @@ jobs:
           git clone --recursive --branch "${{ github.event.inputs.openssl_version }}" https://github.com/quictls/openssl.git openssl &&
           git clone --recursive --branch "${{ github.event.inputs.headers_more_version }}" https://github.com/openresty/headers-more-nginx-module headers-more-nginx-module &&
           git clone --recursive --branch "${{ github.event.inputs.geoip2_version }}" https://github.com/leev/ngx_http_geoip2_module ngx_http_geoip2_module &&
-          git clone --depth 1 https://github.com/cloudflare/zlib.git &&
-          cd zlib && ./configure &&
           
           cd /opt/nginx &&
           wget https://github.com/Refinitiv/nginx-sticky-module-ng/archive/refs/tags/${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
@@ -121,7 +119,6 @@ jobs:
                --with-stream_ssl_module \
                --with-stream_ssl_preread_module \
                --with-pcre=../pcre2 \
-               --with-zlib=../zlib \
                --with-openssl=../openssl \
                --add-module=../nginx-sticky-module \
                --add-module=../ngx_zstd \
