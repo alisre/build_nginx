@@ -25,7 +25,7 @@ on:
         default: "1.2.6"
       headers_more_version:
         required: true
-        default: "0.37"
+        default: "v0.37"
       prefix:
         required: true
         default: "/usr/local/nginx"
