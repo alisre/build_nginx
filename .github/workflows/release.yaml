@@ -73,7 +73,9 @@ jobs:
           dnf clean all &&
 
           cd /opt/nginx &&
-          git clone --depth 1 --recurse-submodules https://github.com/quictls/openssl.git openssl &&
+          git clone --depth 1 --recurse-submodules https://github.com/quictls/openssl.git openssl && 
+          cd openssl && 
+          git checkout ${{ github.event.inputs.openssl_version }} &&
 
           cd /opt/nginx &&
           git clone --recursive --branch "${{ github.event.inputs.headers_more_version }}" https://github.com/openresty/headers-more-nginx-module headers-more-nginx-module &&
