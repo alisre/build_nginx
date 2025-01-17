@@ -119,7 +119,7 @@ jobs:
                       --with-cc-opt='-O3 -march=haswell -mtune=haswell -mavx2 -funroll-loops -fprefetch-loop-arrays \
                                      -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIC -pipe -flto' &&
           make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && make install && cd ${{ github.event.inputs.prefix }} && cd ../ &&  strip -s nginx/sbin/nginx && zip -r nginx.zip nginx && mv nginx.zip /opt/nginx/ &&
-          echo "finish build nginx
+          echo "finish build nginx"
         "
 
     - name: Upload Nginx binary and build information to repository
