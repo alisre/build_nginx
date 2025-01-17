@@ -118,7 +118,7 @@ jobs:
                       --with-stream_ssl_preread_module --with-zlib=../zlib --with-openssl=../openssl --add-module=../nginx-sticky-module --add-module=../ngx_zstd --add-module=../ngx_brotli \
                       --with-openssl-opt='no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128 enable-tls1_3 enable-quic' &&
           make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && make install &&
-          cd ${{ github.event.inputs.prefix }} && cd ../ &&  strip -s nginx/sbin/nginx && zip -r nginx.zip nginx && mv nginx.zip /opt/nginx/ &&
+          cd ${{ github.event.inputs.prefix }} && cd ../ &&  strip -s nginx/sbin/nginx && zip -r nginx.zip nginx && mv nginx.zip /opt/nginx/ 
         "
 
     - name: Upload Nginx binary and build information to repository
