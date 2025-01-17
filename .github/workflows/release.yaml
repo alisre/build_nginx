@@ -110,7 +110,7 @@ jobs:
           wget https://nginx.org/download/nginx-${{ github.event.inputs.nginx_version }}.tar.gz &&
           tar -zxvf nginx-${{ github.event.inputs.nginx_version }}.tar.gz && cd nginx-${{ github.event.inputs.nginx_version }} &&
           git clone --depth 1 --recurse-submodules https://github.com/zhouchangxun/ngx_healthcheck_module.git  ngx_healthcheck_module &&
-          wget https://raw.githubusercontent.com/nginx-modules/ngx_http_tls_dyn_size/refs/heads/master/nginx__dynamic_tls_records_1.27.2%2B.patch -O dynamic_tls_records.patch &&
+          wget https://raw.githubusercontent.com/nginx-modules/ngx_http_tls_dyn_size/refs/heads/master/nginx__dynamic_tls_records_1.25.1%2B.patch -O dynamic_tls_records.patch &&
           patch -p1 < ./dynamic_tls_records.patch &&
           patch -p1 < ./ngx_healthcheck_module/nginx_healthcheck_for_nginx_1.19+.patch &&
       
