@@ -108,7 +108,7 @@ jobs:
           wget https://nginx.org/download/nginx-${{ github.event.inputs.nginx_version }}.tar.gz &&
           tar -zxvf nginx-${{ github.event.inputs.nginx_version }}.tar.gz && cd nginx-${{ github.event.inputs.nginx_version }} &&
           wget https://raw.githubusercontent.com/nginx-modules/ngx_http_tls_dyn_size/refs/heads/master/nginx__dynamic_tls_records_1.27.2%2B.patch -O dynamic_tls_records.patch &&
-          patch -p1 < ./nginx_dynamic_tls_records.patch &&
+          patch -p1 < ./dynamic_tls_records.patch &&
 
           ./configure --prefix=${{ github.event.inputs.prefix }} --with-threads --with-file-aio --with-http_v2_module --with-http_v3_module --with-http_ssl_module \
                       --with-http_sub_module --with-http_slice_module --with-http_realip_module --with-http_degradation_module \
