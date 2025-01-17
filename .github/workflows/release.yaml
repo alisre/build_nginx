@@ -120,7 +120,7 @@ jobs:
                       --with-http_gunzip_module --with-http_addition_module --with-http_gzip_static_module --with-http_auth_request_module \
                       --with-openssl-opt="no-ssl3 no-ssl3-method no-weak-ssl-ciphers" \
                       --with-stream_ssl_preread_module --with-openssl=../openssl --add-module=../nginx-sticky-module --add-module=./ngx_healthcheck_module \
-                      --add-module=../ngx_http_geoip2_module --add-module=../ngx_zstd --add-module=../ngx_brotli --add-module=../headers-more-nginx-module  &&
+                      --add-module=../ngx_http_geoip2_module --add-module=../ngx_zstd --add-module=../ngx_brotli --add-module=../headers-more-nginx-module &&
           echo "start build" &&
           make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && make install && cd ${{ github.event.inputs.prefix }} && cd ../ &&  strip -s nginx/sbin/nginx && zip -r nginx.zip nginx && mv nginx.zip /opt/nginx/ &&
           echo "finish build nginx"
