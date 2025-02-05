@@ -10,10 +10,13 @@ on:
       nginx_version:
         description: "Specify the nginx version"
         required: true
-        default: "1.27.3"
+        default: "1.26.2"
       openssl_version:
         required: true
         default: "openssl-3.3.0+quic"
+      pcre2_version:
+        required: true
+        default: "10.44"
       geoip2_version:
         required: true
         default: "3.4"
@@ -66,23 +69,26 @@ jobs:
         docker run --rm -v ${{ github.workspace }}:/opt/nginx almalinux:${{ env.SYSTEM_VERSION }} /bin/bash -c "
           dnf -y update &&
           dnf -y groupinstall 'Development Tools' &&
-          dnf -y install nano wget mercurial psmisc cmake go automake  libmaxminddb-devel gcc gcc-c++ kernel-devel git zlib zlib-devel openssl openssl-devel pcre pcre-devel perl-IPC-Cmd make tar autoconf brotli-devel &&
+          dnf -y install nano wget libmaxminddb-devel mercurial psmisc cmake go automake gcc gcc-c++ kernel-devel git zlib zlib-devel openssl openssl-devel pcre pcre-devel perl-IPC-Cmd make tar autoconf brotli-devel &&
           dnf clean all &&
 
           cd /opt/nginx &&
-          git clone --recursive --branch "${{ github.event.inputs.openssl_version }}" https://github.com/quictls/openssl.git openssl &&
+          git clone --depth 1 --recurse-submodules https://github.com/quictls/openssl.git openssl &&
+
+          cd /opt/nginx &&
           git clone --recursive --branch "${{ github.event.inputs.headers_more_version }}" https://github.com/openresty/headers-more-nginx-module headers-more-nginx-module &&
           git clone --recursive --branch "${{ github.event.inputs.geoip2_version }}" https://github.com/leev/ngx_http_geoip2_module ngx_http_geoip2_module &&
           git clone --depth 1 https://github.com/cloudflare/zlib.git &&
           cd zlib && ./configure &&
-          
+
           cd /opt/nginx &&
           wget https://github.com/Refinitiv/nginx-sticky-module-ng/archive/refs/tags/${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
           tar xf ${{ github.event.inputs.nginx_sticky_version }}.tar.gz &&
           mv nginx-sticky-module-ng-${{ github.event.inputs.nginx_sticky_version }} nginx-sticky-module &&
           sed -i 's@ngx_http_parse_multi_header_lines.*@ngx_http_parse_multi_header_lines(r, r->headers_in.cookie, \&iphp->sticky_conf->cookie_name, \&route) != NULL){@g' nginx-sticky-module/ngx_http_sticky_module.c &&
           sed -i '12a #include <openssl/sha.h>' nginx-sticky-module/ngx_http_sticky_misc.c &&
-          sed -i '12a #include <openssl/md5.h>' nginx-sticky-module/ngx_http_sticky_misc.c &&
+          sed -i '12a #include <openssl/md5.h>' nginx-sticky-module/ngx_http_sticky_misc.c && 
+
 
           cd /opt/nginx &&
           git clone --depth 1 --recurse-submodules https://github.com/google/ngx_brotli.git ngx_brotli &&
@@ -101,44 +107,24 @@ jobs:
           cd /opt/nginx &&
           wget https://nginx.org/download/nginx-${{ github.event.inputs.nginx_version }}.tar.gz &&
           tar -zxvf nginx-${{ github.event.inputs.nginx_version }}.tar.gz && cd nginx-${{ github.event.inputs.nginx_version }} &&
-          wget -O nginx_dynamic_tls_records.patch https://raw.githubusercontent.com/nginx-modules/ngx_http_tls_dyn_size/refs/heads/master/nginx__dynamic_tls_records_1.27.2%2B.patch &&
-          patch -p1 < ./nginx_dynamic_tls_records.patch &&
-
-          ./configure \
-               --prefix=${{ github.event.inputs.prefix }} \
-               --conf-path=${{ github.event.inputs.prefix }}/conf/nginx.conf \
-               --with-threads \
-               --with-file-aio \
-               --with-http_v2_module \
-               --with-http_v3_module \
-               --with-http_ssl_module \
-               --with-http_sub_module \
-               --with-http_realip_module \
-               --with-http_stub_status_module \
-               --with-pcre-jit \
-               --with-pcre=../pcre2 \
-               --with-stream \
-               --with-stream_ssl_module \
-               --with-stream_ssl_preread_module \
-               --with-pcre=../pcre2 \
-               --with-zlib=../zlib \
-               --with-openssl=../openssl \
-               --add-module=../nginx-sticky-module \
-               --add-module=../ngx_zstd \
-               --add-module=../ngx_brotli \
-               --add-module=../ngx_http_geoip2_module \
-               --add-module=../headers-more-nginx-module \
-               --with-openssl-opt='no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128 enable-tls1_3 enable-quic' \
-               --with-cc-opt='-O3 -march=haswell -mtune=haswell -mavx2 -funroll-loops -fprefetch-loop-arrays \
-                                      -fstack-protector-strong -D_FORTIFY_SOURCE=2 -fPIC -pipe -flto' &&
-           make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && strip -s objs/nginx && mv objs/nginx /opt/nginx/ &&
-           echo "finish build nginx"
+          git clone --depth 1 --recurse-submodules https://github.com/zhouchangxun/ngx_healthcheck_module.git  ngx_healthcheck_module &&
+          wget https://raw.githubusercontent.com/nginx-modules/ngx_http_tls_dyn_size/refs/heads/master/nginx__dynamic_tls_records_1.25.1%2B.patch -O dynamic_tls_records.patch &&
+          patch -p1 < ./dynamic_tls_records.patch &&
+          patch -p1 < ./ngx_healthcheck_module/nginx_healthcheck_for_nginx_1.19+.patch &&
+          ./configure --prefix=${{ github.event.inputs.prefix }} --conf-path=${{ github.event.inputs.prefix }}/conf/nginx.conf --with-threads --with-file-aio --with-http_v2_module --with-http_v3_module --with-http_ssl_module \
+                      --with-http_sub_module --with-http_slice_module --with-http_realip_module --with-http_degradation_module \
+                      --with-http_stub_status_module --with-pcre-jit --with-pcre=../pcre2 --with-stream --with-stream_ssl_module \
+                      --add-module=../ngx_http_geoip2_module --add-module=../headers-more-nginx-module --add-module=./ngx_healthcheck_module  \
+                      --with-stream_ssl_preread_module --with-zlib=../zlib --with-openssl=../openssl --add-module=../nginx-sticky-module --add-module=../ngx_zstd --add-module=../ngx_brotli \
+                      --with-openssl-opt='no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128 enable-tls1_3 enable-quic' &&
+          make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && make install &&
+          cd ${{ github.event.inputs.prefix }} && cd ../ &&  strip -s nginx/sbin/nginx && zip -r nginx.zip nginx && mv nginx.zip /opt/nginx/ 
         "
 
     - name: Upload Nginx binary and build information to repository
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: nginx_artifacts
         path: |
-          ${{ github.workspace }}/nginx
+          ${{ github.workspace }}/nginx.zip
           ${{ github.workspace }}/nginx_build_info.txt
