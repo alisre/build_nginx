@@ -122,7 +122,7 @@ jobs:
         "
 
     - name: Upload Nginx binary and build information to repository
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: nginx_artifacts
         path: |
