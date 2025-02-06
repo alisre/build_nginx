@@ -66,10 +66,11 @@ jobs:
 
     - name: Run Docker container and build Nginx
       run: |
-        docker run --rm -v ${{ github.workspace }}:/opt/nginx alpine:latest /bin/sh -c "
-          apk upgrade --no-cache -a && \
-          apk add --no-cache ca-certificates build-base cmake git libtool autoconf automake perl bash \
-          libatomic_ops-dev zlib-dev luajit-dev pcre2-dev linux-headers yajl-dev libxml2-dev libxslt-dev curl-dev lmdb-dev libfuzzy2-dev lua5.1-dev lmdb-dev geoip-dev libmaxminddb-dev  libxml2-dev &&
+        docker run --rm -v ${{ github.workspace }}:/opt/nginx almalinux:${{ env.SYSTEM_VERSION }} /bin/bash -c "
+          dnf -y update &&
+          dnf -y groupinstall 'Development Tools' &&
+          dnf -y install nano wget libmaxminddb-devel mercurial psmisc cmake go automake gcc gcc-c++ kernel-devel git zlib zlib-devel openssl openssl-devel pcre pcre-devel perl-IPC-Cmd make tar autoconf brotli-devel &&
+          dnf clean all &&
 
           cd /opt/nginx &&
           git clone --depth 1 --recurse-submodules https://github.com/quictls/openssl.git openssl &&
@@ -115,7 +116,7 @@ jobs:
                       --with-http_stub_status_module --with-pcre-jit --with-pcre=../pcre2 --with-stream --with-stream_ssl_module \
                       --add-module=../ngx_http_geoip2_module --add-module=../headers-more-nginx-module --add-module=./ngx_healthcheck_module  \
                       --with-stream_ssl_preread_module --with-zlib=../zlib --with-openssl=../openssl --add-module=../nginx-sticky-module --add-module=../ngx_zstd --add-module=../ngx_brotli \
-                      --with-openssl-opt='no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128 enable-tls1_3 enable-quic' --with-cc-opt='-static -s' --with-ld-opt=-static &&
+                      --with-openssl-opt='no-weak-ssl-ciphers enable-ec_nistp_64_gcc_128 enable-tls1_3 enable-quic' &&
           make -j$(nproc) && objs/./nginx -V &> /opt/nginx/nginx_build_info.txt && make install &&
           cd ${{ github.event.inputs.prefix }} && cd ../ &&  strip -s nginx/sbin/nginx && zip -r nginx.zip nginx && mv nginx.zip /opt/nginx/ 
         "
