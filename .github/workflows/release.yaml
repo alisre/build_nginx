@@ -10,13 +10,13 @@ on:
       nginx_version:
         description: "Specify the nginx version"
         required: true
-        default: "1.26.2"
+        default: "1.26.3"
       openssl_version:
         required: true
-        default: "openssl-3.3.0+quic"
+        default: "openssl-3.1.7+quic"
       pcre2_version:
         required: true
-        default: "10.44"
+        default: "10.45"
       geoip2_version:
         required: true
         default: "3.4"
